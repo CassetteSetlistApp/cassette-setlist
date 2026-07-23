@@ -1,0 +1,57 @@
+/* ------------------------------------------------------------
+   TRACK MENU DOTS (...)
+------------------------------------------------------------ */
+
+.track-menu-dots {
+  float: right;
+  color: #ccc;
+  cursor: pointer;
+  font-weight: bold;
+  padding-left: 10px;
+  font-size: 18px;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.track-menu-dots:hover {
+  color: #fff;
+}
+
+/* ------------------------------------------------------------
+   CONTEXT MENU (Lyrics / Related)
+------------------------------------------------------------ */
+
+.track-context-menu {
+  position: absolute;
+  background: #111;
+  border: 1px solid #0ff;
+  border-radius: 8px;
+  box-shadow: 0 0 18px rgba(0,255,255,0.4);
+  padding: 6px 0;
+  width: 140px;
+  display: none;
+  z-index: 9999;
+}
+
+.track-context-item {
+  padding: 10px 14px;
+  color: #0ff;
+  cursor: pointer;
+  font-size: 14px;
+  text-shadow: 0 0 6px #0ff;
+  transition: 0.2s ease;
+}
+
+.track-context-item:hover {
+  background: #0ff;
+  color: #000;
+  text-shadow: none;
+}
+
+/* ------------------------------------------------------------
+   FIX: Prevent context menu from breaking layout
+------------------------------------------------------------ */
+
+.track-context-menu * {
+  white-space: nowrap;
+}

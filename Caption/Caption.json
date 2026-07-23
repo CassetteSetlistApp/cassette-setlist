@@ -1,0 +1,18 @@
+{
+  "subtitle1": {
+    "color": "#ffffff",
+    "size": 72,
+    "bgColor": "#000000",
+    "bgOpacity": 0.55,
+    "fontFamily": "Serif Monospace",
+    "visible": true
+  },
+  "subtitle2": {
+    "color": "#ffffff",
+    "size": 49,
+    "bgColor": "#7affcc",
+    "bgOpacity": 0.7,
+    "fontFamily": "Soft Sans",
+    "visible": true
+  }
+}

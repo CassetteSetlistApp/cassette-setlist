@@ -1,0 +1,217 @@
+/* ------------------------------------------------------------
+   SUBTITLE OVERLAY
+------------------------------------------------------------ */
+
+#cassetteSubtitleOverlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  height: 100vh;
+
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+
+  display: none;
+  z-index: 999999999;
+
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.subtitle-overlay-panel {
+  background: #111;
+  border: 2px solid #0ff;
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0,255,255,0.5);
+
+  width: 100%;
+  max-height: 100vh;
+
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+
+  position: relative;
+}
+
+.subtitle-overlay-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+
+  font-size: 26px;
+  font-weight: bold;
+  color: #0ff;
+  cursor: pointer;
+
+  text-shadow: 0 0 8px #0ff;
+  transition: 0.2s ease;
+}
+
+.subtitle-overlay-close:hover {
+  color: #fff;
+  text-shadow: 0 0 12px #fff;
+}
+
+/* ------------------------------------------------------------
+   VIDEO CONTAINER
+------------------------------------------------------------ */
+
+#videoContainer {
+  display: none;
+  position: relative;
+  overflow: hidden;
+
+  flex: none !important;
+
+  margin-top: 14px;
+  background: #0a0a0f;
+  border: 1px solid #0ff;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
+}
+
+/* ------------------------------------------------------------
+   CAPTION OVERLAY ABOVE VIDEO
+------------------------------------------------------------ */
+
+.cassette-caption-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5%;
+  pointer-events: none;
+
+  display: none;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center; /* CENTERED */
+
+  z-index: 999999999;
+}
+
+/* ------------------------------------------------------------
+   GENERAL SUBTITLE CAPTION STYLE
+------------------------------------------------------------ */
+
+.cassetteSubtitleCaption {
+  position: relative;
+  margin-bottom: 10px;
+
+  color: #fff;
+  text-shadow: 0 0 6px #000;
+
+  line-height: 1.4;
+  white-space: normal;
+  word-wrap: break-word;
+
+  display: none;
+  text-align: center; /* CENTERED */
+}
+
+/* ------------------------------------------------------------
+   BACKGROUND WRAPPER FOR CAPTION
+------------------------------------------------------------ */
+
+.subtitle-bg {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+
+  line-height: 1.4;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------
+   SUBTITLE LIST (BUTTONS)
+------------------------------------------------------------ */
+
+#cassetteSubtitleList {
+  margin-top: 20px;
+  color: #0ff;
+  font-size: 18px;
+}
+
+.subtitle-btn {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #0ff;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.subtitle-btn:hover {
+  background: #fff;
+}
+
+/* ------------------------------------------------------------
+   SETTINGS
+------------------------------------------------------------ */
+
+.subtitle-settings {
+  margin-top: 10px;
+  padding: 10px 0;
+
+  color: #0ff;
+}
+
+/* ------------------------------------------------------------
+   SLIDER
+------------------------------------------------------------ */
+
+.subtitle-settings select,
+.subtitle-settings input[type="color"],
+.subtitle-settings input[type="range"] {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 8px;
+  padding: 6px;
+
+  background: #111;
+  color: #0ff;
+  border: 1px solid #0ff;
+  border-radius: 6px;
+
+  box-sizing: border-box;
+}
+
+.subtitle-settings input[type="range"] {
+  background: transparent;
+}
+
+/* ------------------------------------------------------------
+   DOWNLOAD BUTTON
+------------------------------------------------------------ */
+
+.subtitle-settings-actions {
+  margin-top: 20px;
+  padding-top: 0;
+  border-top: none;
+}
+
+.settings-btn {
+  width: 100%;
+  padding: 10px;
+  background: #0ff;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.settings-btn:hover {
+  background: #fff;
+}

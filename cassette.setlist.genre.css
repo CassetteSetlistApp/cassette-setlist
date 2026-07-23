@@ -1,0 +1,24 @@
+.genre-related-info {
+  color: #0ff;
+  font-size: 14px;
+  margin-top: 6px;
+  text-shadow: 0 0 6px #0ff;
+}
+
+.track-related-highlight {
+  background: rgba(0,255,255,0.08);
+  border-left: 3px solid #0ff;
+  padding-left: 6px;
+}
+
+.genre-tag {
+  display: inline-block;
+  background: rgba(0,255,255,0.15);
+  border: 1px solid #0ff;
+  padding: 2px 6px;
+  margin-right: 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #0ff;
+  text-shadow: 0 0 4px #0ff;
+}

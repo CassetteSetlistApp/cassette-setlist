@@ -1,0 +1,231 @@
+.track-panel {
+  flex: 0 0 auto;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding-right: 8px;
+  padding-top: 10px;      
+}
+
+.drop-zone {
+  flex: 0 0 auto;
+  margin-bottom: 12px;
+}
+
+.track-list {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* ------------------------------------------------------------
+   Setlist Browser
+------------------------------------------------------------ */
+
+.setlist-panel {
+  flex: 0 0 360px;
+  max-width: 360px;
+  overflow-y: auto;
+  padding: 10px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+#setlistBrowser {
+  padding-top: 10px;
+  border-top: 1px solid rgba(0,255,255,0.2);
+}
+
+/* ------------------------------------------------------------
+   GRID (Bands / Albums)
+------------------------------------------------------------ */
+
+#setlistBrowser .setlist-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* ------------------------------------------------------------
+   CARD
+------------------------------------------------------------ */
+
+.setlist-card {
+  background: #111;
+  border: 1px solid #0ff;
+  border-radius: 10px;
+  padding: 0;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.2s ease;
+  box-shadow: 0 0 12px rgba(0,255,255,0.15);
+}
+
+.setlist-card:hover {
+  background: #0ff;
+  color: #000;
+  box-shadow: 0 0 22px #0ff;
+  transform: translateY(-3px);
+}
+
+/* ------------------------------------------------------------
+   COVER CONTAINER
+------------------------------------------------------------ */
+
+.cover-container {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 10px 10px 0 0;
+}
+
+.cover-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ------------------------------------------------------------
+   TITLE CONTAINER
+------------------------------------------------------------ */
+
+.title-container {
+  background: rgba(0, 0, 0, 0.55);
+  padding: 8px;
+  border-radius: 0 0 10px 10px;
+  backdrop-filter: blur(4px);
+}
+
+/* ------------------------------------------------------------
+   TITLES
+------------------------------------------------------------ */
+
+.setlist-card-title {
+  font-size: 14px;
+  color: #0ff;
+  text-shadow: 0 0 6px #0ff;
+}
+
+.setlist-band-title {
+  font-size: 22px;
+  color: #0ff;
+  margin-bottom: 14px;
+}
+
+/* ------------------------------------------------------------
+   PAGINATION 
+------------------------------------------------------------ */
+
+.setlist-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.setlist-pagination button {
+  background: #111;
+  color: #0ff;
+  border: 1px solid #0ff;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  text-shadow: 0 0 6px #0ff;
+  transition: 0.2s ease;
+}
+
+.setlist-pagination button:hover {
+  background: #0ff;
+  color: #000;
+  text-shadow: none;
+}
+
+.setlist-page-label {
+  color: #0ff;
+  font-size: 18px;
+  text-shadow: 0 0 6px #0ff;
+  background: rgba(0, 0, 0, 0.65);  
+  padding: 6px 14px;               
+  border-radius: 6px;          
+  border: 1px solid #0ff;      
+}
+
+/* ------------------------------------------------------------
+   BACK BUTTON
+------------------------------------------------------------ */
+
+.setlist-back-btn {
+  margin-top: 18px;
+  background: #111;
+  color: #0ff;
+  border: 1px solid #0ff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.setlist-back-btn:hover {
+  background: #0ff;
+  color: #000;
+}
+
+/* ------------------------------------------------------------
+   FULLSCREEN MODE (Video Container + Video + Captions)
+------------------------------------------------------------ */
+
+#videoContainer:fullscreen,
+#videoContainer:-webkit-full-screen {
+  margin: 0 !important;
+  padding: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  border: none !important;    
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  flex: none !important;
+  display: block !important;
+}
+
+#videoContainer:fullscreen video,
+#videoContainer:-webkit-full-screen video {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: #000 !important;
+  display: block !important;
+}
+
+
+#videoContainer:fullscreen .cassette-caption-overlay,
+#videoContainer:-webkit-full-screen .cassette-caption-overlay {
+  display: flex !important;
+  position: absolute !important;
+  bottom: 5% !important;
+  left: 0 !important;
+  right: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 999999999 !important;
+}
+
+
+/* Hide fullscreen button */
+#videoContainer video::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+}
+
+/* Hide download button */
+#videoContainer video::-webkit-media-controls-download-button {
+  display: none !important;
+}

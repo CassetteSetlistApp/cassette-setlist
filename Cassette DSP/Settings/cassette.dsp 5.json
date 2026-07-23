@@ -1,0 +1,20 @@
+{
+  "baseParams": {
+    "hiss": 0.02,
+    "saturation": 0.38,
+    "wowFlutter": 0.26,
+    "softBass": 0.54,
+    "tone": 0.35
+  },
+  "settings2Params": {
+    "highBass": 0.12,
+    "presence": 0.05
+  },
+  "settings3Params": {
+    "lowBass": 0.06,
+    "punch": 0.02,
+    "bodyBoost": 0
+  },
+  "settings2Enabled": true,
+  "settings3Enabled": true
+}
