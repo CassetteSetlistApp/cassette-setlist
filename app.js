@@ -16,6 +16,15 @@ let audioSource = null;
 let videoSource = null;
 
 const cassetteUI = new CassetteUI();
+cassetteUI.setPlaying(false);
+
+// Ensure initial icon state: show play, hide pause
+const playIconInit = document.getElementById("playIcon");
+const pauseIconInit = document.getElementById("pauseIcon");
+if (playIconInit && pauseIconInit) {
+  playIconInit.style.display = "block";
+  pauseIconInit.style.display = "none";
+}
 
 // DOM references
 const dropZone = document.getElementById("dropZone");
@@ -115,8 +124,6 @@ function initAudio() {
   if (window.CassetteSubtitle && videoContainer) {
     CassetteSubtitle.initSubtitleDOM(videoContainer);
     CassetteSubtitle.loadSubtitleSettings();
-    // Caption defaults can also be preloaded here if you want:
-    // CassetteSubtitle.loadCaptionDefaults("Caption/Caption.json");
   }
 
   loadDefaultDspSettings();
@@ -138,7 +145,6 @@ function closeSubtitleOverlay() {
 }
 
 document.getElementById("subtitleOverlayClose").onclick = closeSubtitleOverlay;
-
 
 // ------------------------------------------------------------
 // DEFAULT DSP LOAD
@@ -325,9 +331,7 @@ dropZone.addEventListener("dragleave", () => {
   dropZone.classList.remove("dragover");
 });
 
-// ------------------------------------------------------------
 // DROP ZONE IMPORT (SETLIST.TXT + MEDIA)
-// ------------------------------------------------------------
 dropZone.addEventListener("drop", async (e) => {
   e.preventDefault();
   dropZone.classList.remove("dragover");
@@ -339,6 +343,7 @@ dropZone.addEventListener("drop", async (e) => {
 
 // ------------------------------------------------------------
 // LOAD FROM SETLIST.TXT (MEDIA ONLY, SRT/VTT AS SUBTITLE METADATA)
+// + FALLBACK MODE
 // ------------------------------------------------------------
 async function loadFromSetlist(allFiles) {
   trackList = [];
@@ -353,23 +358,69 @@ async function loadFromSetlist(allFiles) {
 
   let totalTapeLength = 0;
 
+  // ------------------------------------------------------------
+  // CHECK FOR SETLIST.TXT
+  // ------------------------------------------------------------
   const setlistFile = allFiles.find(f => f.name.toLowerCase() === "setlist.txt");
+
+  // ------------------------------------------------------------
+  // ⭐ FALLBACK MODE — NO SETLIST.TXT
+  // ------------------------------------------------------------
   if (!setlistFile) {
-    console.warn("setlist.txt not found in dropped/selected folder.");
-    return;
+    console.warn("setlist.txt not found — fallback mode enabled.");
+    document.getElementById("trackPanel").style.display = "block";
+document.getElementById("setlistPanel").style.display = "none";
+
+
+    const mediaFiles = allFiles.filter(f =>
+      /\.(mp3|wav|aif|aiff|flac|mp4|webm|ogg|m4a|aac|mov|mkv|opus|wma)$/i.test(f.name)
+    );
+
+    if (mediaFiles.length === 0) {
+      console.warn("No media files found in folder.");
+      return;
+    }
+
+    for (const file of mediaFiles) {
+      const url = URL.createObjectURL(file);
+      const duration = await getFileDuration(url) || 1;
+
+      trackList.push({
+        name: file.name.replace(/\.[^.]+$/, ""),
+        url,
+        duration,
+        isVideo: file.type.startsWith("video"),
+        subtitleVTT: null,
+        subtitleSRTs: []
+      });
+
+      totalTapeLength += duration;
+    }
+
+    cassetteUI.setTotalTapeLength(totalTapeLength);
+    renderTrackList();
+
+    if (trackList.length > 0) {
+      currentTrackIndex = 0;
+      playCurrentTrack();
+    }
+
+    return; // ⭐ STOP — fallback handled
   }
 
+  // ------------------------------------------------------------
+  // NORMAL SETLIST.TXT MODE
+  // ------------------------------------------------------------
   const setlistText = await fileToText(setlistFile);
   const lines = setlistText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
 
   const fileMap = {};
-  allFiles.forEach(f => {
-    fileMap[f.name] = f;
-  });
+  allFiles.forEach(f => fileMap[f.name] = f);
 
   const vttMap = {};
   const srtMap = {};
 
+  // Collect subtitle files
   lines.forEach(line => {
     const name = line.trim();
     const extMatch = name.match(/\.(srt|vtt)$/i);
@@ -387,17 +438,14 @@ async function loadFromSetlist(allFiles) {
     }
   });
 
+  // Build trackList from setlist.txt
   for (const line of lines) {
     const name = line.trim();
     const extMatch = name.match(/\.(mp3|wav|aif|aiff|flac|mp4|webm|ogg|srt|vtt)$/i);
     if (!extMatch) continue;
 
     const ext = extMatch[1].toLowerCase();
-
-    if (ext === "srt" || ext === "vtt") {
-      continue;
-    }
-
+    if (ext === "srt" || ext === "vtt") continue;
     if (!fileMap[name]) continue;
 
     const file = fileMap[name];
@@ -411,13 +459,13 @@ async function loadFromSetlist(allFiles) {
     let subtitleSRTs = [];
 
     const vttEntry = vttMap[cleanName];
-    if (vttEntry && vttEntry.length > 0) {
+    if (vttEntry?.length > 0) {
       subtitleVTT = URL.createObjectURL(vttEntry[0]);
     }
 
     const srtEntry = srtMap[cleanName];
-    if (srtEntry && srtEntry.length > 0) {
-      subtitleSRTs = srtEntry.map((f) => ({
+    if (srtEntry?.length > 0) {
+      subtitleSRTs = srtEntry.map(f => ({
         name: f.name,
         url: URL.createObjectURL(f)
       }));
@@ -436,15 +484,12 @@ async function loadFromSetlist(allFiles) {
   }
 
   cassetteUI.setTotalTapeLength(totalTapeLength);
-
   renderTrackList();
 
-  // Hook track menus (Lyrics / Related / Subtitle / Fullscreen)
   if (window.attachTrackMenus) {
     window.attachTrackMenus();
   }
 
-  // Load default caption settings for subtitles
   if (window.CassetteSubtitle) {
     CassetteSubtitle.loadCaptionDefaults &&
       CassetteSubtitle.loadCaptionDefaults("Caption/Caption.json");
@@ -456,6 +501,9 @@ async function loadFromSetlist(allFiles) {
   }
 }
 
+// ------------------------------------------------------------
+// FILE → TEXT
+// ------------------------------------------------------------
 function fileToText(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -465,6 +513,9 @@ function fileToText(file) {
   });
 }
 
+// ------------------------------------------------------------
+// GET MEDIA DURATION
+// ------------------------------------------------------------
 async function getFileDuration(url) {
   return new Promise((resolve) => {
     let temp;
@@ -484,17 +535,22 @@ async function getFileDuration(url) {
 }
 
 // ------------------------------------------------------------
-// TRACK LIST (FINAL UPDATED VERSION)
+// TRACK LIST
 // ------------------------------------------------------------
 function renderTrackList() {
 
-  // expose globally for cassette.setlist.ui.js
   window.trackList = trackList;
 
-  // clear UI
   trackListEl.innerHTML = "";
 
-  // sort by leading number
+  // ⭐ Always show BOTH panels
+  const trackPanel = document.getElementById("trackPanel");
+  const setlistPanel = document.getElementById("setlistPanel");
+
+  if (trackPanel) trackPanel.style.display = "flex";
+  if (setlistPanel) setlistPanel.style.display = "flex";
+
+  // Sort tracks by leading number
   trackList.sort((a, b) => {
     const numA = extractLeadingNumber(a.name);
     const numB = extractLeadingNumber(b.name);
@@ -505,24 +561,16 @@ function renderTrackList() {
     return a.name.localeCompare(b.name);
   });
 
-  // render only MEDIA tracks (skip SRT/VTT)
   trackList.forEach((track, index) => {
-
-    // skip non‑media entries (safety)
-    if (!track.url.match(/\.(mp3|wav|aif|aiff|flac|mp4|webm|ogg)$/i)) return;
 
     const li = document.createElement("li");
     li.dataset.index = index;
-
-    // display name
     li.textContent = track.name;
 
-    // highlight active track
     if (index === currentTrackIndex) {
       li.classList.add("active");
     }
 
-    // click → play track
     li.onclick = () => {
       currentTrackIndex = index;
       playCurrentTrack();
@@ -537,10 +585,8 @@ function renderTrackList() {
     trackListEl.appendChild(li);
   });
 
-  // update tape length
   cassetteUI.setTotalTapeLength(getTotalDuration());
 
-  // attach "..." menu dots (Lyrics / Related / Subtitle / Fullscreen)
   if (window.attachTrackMenus) {
     window.attachTrackMenus();
   }
@@ -559,23 +605,24 @@ function updateTrackActiveState() {
 }
 
 // ------------------------------------------------------------
-// PLAYBACK
+// PLAY CURRENT TRACK
 // ------------------------------------------------------------
 function playCurrentTrack() {
   if (!audioElement || currentTrackIndex < 0 || currentTrackIndex >= trackList.length) return;
 
   const track = trackList[currentTrackIndex];
   const media = track.isVideo ? videoElement : audioElement;
+  const cassetteCaptionOverlay = document.getElementById("cassetteCaptionOverlay");
 
   if (videoContainer) {
     if (track.isVideo) {
       videoContainer.style.display = "block";
       videoElement.style.display = "block";
-      cassetteCaptionOverlay.style.display = "flex";
+      if (cassetteCaptionOverlay) cassetteCaptionOverlay.style.display = "flex";
     } else {
       videoContainer.style.display = "none";
       videoElement.style.display = "none";
-      cassetteCaptionOverlay.style.display = "none";
+      if (cassetteCaptionOverlay) cassetteCaptionOverlay.style.display = "none";
     }
   }
 
@@ -624,9 +671,8 @@ function playCurrentTrack() {
   renderTrackList();
 }
 
-
 // ------------------------------------------------------------
-// Play / pause toggle
+// PLAY / PAUSE TOGGLE
 // ------------------------------------------------------------
 function togglePlayPause() {
   const media = getActiveMedia();
@@ -656,7 +702,7 @@ function togglePlayPause() {
 }
 
 // ------------------------------------------------------------
-// SEEK HOLD (Rewind / Fast‑Forward)
+// SEEK HOLD (REWIND / FAST‑FORWARD)
 // ------------------------------------------------------------
 let seekHoldDirection = null;
 let seekHoldTimer = null;
@@ -681,6 +727,9 @@ function startSeekHold(direction) {
     const step = 4.0;
     let currentMedia = getActiveMedia();
 
+    // ----------------------------
+    // REWIND
+    // ----------------------------
     if (direction === "prev") {
       currentMedia.currentTime = Math.max(currentMedia.currentTime - step, 0);
 
@@ -688,7 +737,7 @@ function startSeekHold(direction) {
         currentTrackIndex--;
 
         const prevTrack = trackList[currentTrackIndex];
-        currentMedia = prevTrack.isVideo && videoElement ? videoElement : audioElement;
+        currentMedia = prevTrack.isVideo ? videoElement : audioElement;
         currentMedia.src = prevTrack.url;
 
         const prevDur = prevTrack.duration || 0;
@@ -705,10 +754,12 @@ function startSeekHold(direction) {
         }
 
         currentMedia.play();
-
         renderTrackList();
       }
 
+    // ----------------------------
+    // FAST‑FORWARD
+    // ----------------------------
     } else if (direction === "next") {
       const track = getActiveTrack();
       const maxDur = track?.duration || currentMedia.duration || 0;
@@ -719,7 +770,7 @@ function startSeekHold(direction) {
         currentTrackIndex++;
 
         const nextTrack = trackList[currentTrackIndex];
-        currentMedia = nextTrack.isVideo && videoElement ? videoElement : audioElement;
+        currentMedia = nextTrack.isVideo ? videoElement : audioElement;
         currentMedia.src = nextTrack.url;
 
         currentMedia.currentTime = 0;
@@ -735,7 +786,6 @@ function startSeekHold(direction) {
         }
 
         currentMedia.play();
-
         renderTrackList();
       }
     }
@@ -746,7 +796,7 @@ function startSeekHold(direction) {
 }
 
 // ------------------------------------------------------------
-// STOP SEEK HOLD (Rewind / Fast‑Forward Release)
+// STOP SEEK HOLD
 // ------------------------------------------------------------
 function stopSeekHold() {
   if (seekHoldTimer) {
@@ -786,7 +836,7 @@ function stopSeekHold() {
 }
 
 // ------------------------------------------------------------
-// PROGRESS BAR CLICK (FINAL, NO RELOAD SUBTITLES)
+// PROGRESS BAR CLICK (SEEK)
 // ------------------------------------------------------------
 progressBar.addEventListener("click", (e) => {
   if (!audioElement || trackList.length === 0) return;
@@ -798,6 +848,7 @@ progressBar.addEventListener("click", (e) => {
 
   let accumulated = 0;
   let targetIndex = 0;
+
   for (let i = 0; i < trackList.length; i++) {
     const d = trackList[i].duration || 0;
     if (targetGlobal < accumulated + d) {
@@ -809,14 +860,14 @@ progressBar.addEventListener("click", (e) => {
 
   currentTrackIndex = targetIndex;
   const track = trackList[currentTrackIndex];
-  const media = track.isVideo && videoElement ? videoElement : audioElement;
+  const media = track.isVideo ? videoElement : audioElement;
 
   media.src = track.url;
   media.currentTime = targetGlobal - accumulated;
 
-  // ⭐ Only refresh subtitles, do NOT reload them here
+  // Subtitles: update only, do NOT reload
   if (window.CassetteSubtitle && track.isVideo) {
-    lastSubtitleTime = -1;
+    window.lastSubtitleTime = -1;
     CassetteSubtitle.updateSubtitleTime(media.currentTime);
   } else if (window.CassetteSubtitle && !track.isVideo) {
     CassetteSubtitle.clearSubtitles && CassetteSubtitle.clearSubtitles();
