@@ -109,7 +109,7 @@ function getLayerFromFilename(name) {
 }
 
 /* ------------------------------------------------------------
-   SHOW SUBTITLE BUTTONS + NESTED PANELS
+   SUBTITLE BUTTONS + SETTINGS
 ------------------------------------------------------------ */
 function showVTTButtons() {
   subtitleList.innerHTML = "";
@@ -384,7 +384,7 @@ function downloadSubtitleSettings() {
 }
 
 /* ------------------------------------------------------------
-   PUBLIC API (FIRST BLOCK)
+   PUBLIC API
 ------------------------------------------------------------ */
 window.CassetteSubtitle = {
   initSubtitleDOM: function () {
@@ -488,7 +488,7 @@ function discoverSRTFiles() {
 }
 
 /* ------------------------------------------------------------
-   SRT → VTT CONVERSION PANEL
+/* SRT → VTT 
 ------------------------------------------------------------ */
 function showSRTButtons() {
   overlay.style.display = "flex";
@@ -497,7 +497,7 @@ function showSRTButtons() {
   subtitleSettingsContainer.innerHTML = "";
 
   const info = document.createElement("div");
-  info.textContent = "Subtitle tracks (SRT → VTT download):";
+  info.textContent = "Download VTT";
   info.style.marginBottom = "10px";
   subtitleList.appendChild(info);
 
@@ -505,7 +505,7 @@ function showSRTButtons() {
     const clean = file.name.replace(/\.(srt|vtt)$/i, "");
 
     const btn = document.createElement("button");
-    btn.textContent = clean + " (convert → vtt)";
+    btn.textContent = clean;
     btn.className = "subtitle-btn";
 
     btn.onclick = async () => {
@@ -533,6 +533,7 @@ function showSRTButtons() {
   });
 }
 
+
 function convertSrtToVtt(srtContent) {
   let vtt = "WEBVTT\n\n";
   vtt += srtContent
@@ -543,7 +544,7 @@ function convertSrtToVtt(srtContent) {
 }
 
 /* ------------------------------------------------------------
-   VTT BUTTON PANEL (SIMPLE PANEL FOR DISCOVERY MODE)
+   VTT BUTTON
 ------------------------------------------------------------ */
 function showVTTButtonsSimple() {
   overlay.style.display = "flex";
@@ -595,7 +596,7 @@ function showVTTButtonsSimple() {
 }
 
 /* ------------------------------------------------------------
-   MAIN SUBTITLE CONTROLLER (DISCOVERY MODE)
+   MAIN SUBTITLE CONTROLLER
 ------------------------------------------------------------ */
 window.CassetteSubtitle = {
   currentSubtitleTrack: null,
